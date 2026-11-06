@@ -1,0 +1,11 @@
+---
+# Used by cPanel -> Git Version Control -> "Deploy HEAD Commit".
+# 1) Replace CPANELUSER with your cPanel username.
+# 2) The repo working tree must be clean (no uncommitted changes on the server) for deploy to run.
+# 3) .env is NOT in git: create it once in $DEPLOYPATH (see .env.example) and it is kept across deploys.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/CPANELUSER/events-api
+    - /bin/mkdir -p $DEPLOYPATH
+    - /usr/bin/rsync -a --delete --exclude='.git' --exclude='node_modules' --exclude='.env' ./ $DEPLOYPATH/
+    - cd $DEPLOYPATH && npm ci && pm2 startOrReload ecosystem.config.cjs --update-env && pm2 save
